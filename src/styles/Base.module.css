@@ -1,17 +1,28 @@
-:root {
+:global(:root) {
   color: #0f172a;
   background-color: #f8fafc;
 }
 
-* {
+:global(*) {
   box-sizing: border-box;
 }
 
-body {
+:global(body) {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: #f8fafc;
   color: #0f172a;
+}
+
+:global(h1),
+:global(h2),
+:global(h3) {
+  margin: 4px 0;
+  color: #0f172a;
+}
+
+:global(p) {
+  margin: 0 0 8px;
 }
 
 .page {
@@ -27,17 +38,6 @@ body {
   padding: 28px;
   margin-bottom: 24px;
   box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
-}
-
-h1,
- h2,
- h3 {
-  margin: 4px 0;
-  color: #0f172a;
-}
-
-p {
-  margin: 0 0 8px;
 }
 
 .eyebrow {
@@ -67,7 +67,7 @@ p {
   margin-top: 12px;
 }
 
-button {
+.button {
   border: none;
   background: #0f172a;
   color: #f8fafc;
@@ -79,13 +79,13 @@ button {
   box-shadow: 0 8px 25px rgba(15, 23, 42, 0.16);
 }
 
-button:disabled {
+.button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
   box-shadow: none;
 }
 
-button:not(:disabled):hover {
+.button:not(:disabled):hover {
   transform: translateY(-1px);
 }
 
@@ -98,7 +98,7 @@ button:not(:disabled):hover {
   font-size: 13px;
 }
 
-.pill--warning {
+.pillWarning {
   background: #fef3c7;
   color: #92400e;
 }
@@ -111,7 +111,7 @@ button:not(:disabled):hover {
   box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
 }
 
-.panel__header {
+.panelHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -123,7 +123,7 @@ button:not(:disabled):hover {
   gap: 14px;
 }
 
-.stack--sm {
+.stackSm {
   gap: 10px;
 }
 
@@ -133,7 +133,7 @@ button:not(:disabled):hover {
   border-radius: 12px;
 }
 
-.characteristic__header {
+.characteristicHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -147,8 +147,8 @@ button:not(:disabled):hover {
 }
 
 @media (max-width: 640px) {
-  .panel__header,
-  .characteristic__header,
+  .panelHeader,
+  .characteristicHeader,
   .actions {
     flex-direction: column;
     align-items: flex-start;
