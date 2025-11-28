@@ -9,14 +9,24 @@ function App() {
   const [deviceInfo, setDeviceInfo] = useState(null)
   const [services, setServices] = useState([])
   const [error, setError] = useState('')
+  const [customServicesInput, setCustomServicesInput] = useState('')
 
   useEffect(() => {
     setSupported(typeof navigator !== 'undefined' && 'bluetooth' in navigator)
   }, [])
 
+  const customServices = useMemo(
+    () =>
+      customServicesInput
+        .split(/[\n,]/)
+        .map((service) => service.trim())
+        .filter(Boolean),
+    [customServicesInput]
+  )
+
   const allowedServices = useMemo(
-    () => Array.from(new Set(defaultServices)),
-    []
+    () => Array.from(new Set([...defaultServices, ...customServices])),
+    [customServices]
   )
 
   const handleDisconnect = (event) => {
@@ -40,7 +50,9 @@ function App() {
 
     try {
       setIsScanning(true)
-      console.log('Starting device scan: calling navigator.bluetooth.requestDevice')
+      console.log('Starting device scan: calling navigator.bluetooth.requestDevice', {
+        optionalServices: allowedServices,
+      })
       const device = await navigator.bluetooth.requestDevice({
         acceptAllDevices: true,
         optionalServices: allowedServices,
@@ -103,6 +115,41 @@ function App() {
               {isScanning ? 'Scanning…' : 'Start scan'}
             </button>
             {!supported && <span className={`${styles.pill} ${styles.pillWarning}`}>Web Bluetooth unavailable</span>}
+          </div>
+          <div className={`${styles.panel} ${styles.inlinePanel}`}>
+            <div className={styles.stack}>
+              <div className={styles.panelHeader}>
+                <div>
+                  <p className={styles.eyebrow}>Optional services</p>
+                  <h3>Include custom service UUIDs</h3>
+                  <p className={styles.muted}>
+                    Default Bluetooth services are prefilled. Add UUIDs or service names to include custom
+                    services when requesting a device.
+                  </p>
+                </div>
+              </div>
+              <label className={styles.label} htmlFor="services-input">
+                Additional services (comma or newline separated)
+              </label>
+              <textarea
+                id="services-input"
+                className={styles.textarea}
+                value={customServicesInput}
+                onChange={(event) => setCustomServicesInput(event.target.value)}
+                placeholder="custom_service, 12345678-1234-1234-1234-1234567890ab"
+                rows={3}
+              />
+              <p className={`${styles.muted} ${styles.helpText}`}>
+                We will request these services along with defaults to ensure custom characteristics are returned.
+              </p>
+              <div className={styles.pillRow}>
+                {allowedServices.map((service) => (
+                  <span key={service} className={`${styles.pill} ${styles.pillNeutral}`}>
+                    {service}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
           {error && <p className={styles.error}>{error}</p>}
         </div>
