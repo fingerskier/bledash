@@ -1,56 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import './App.css'
-
-const defaultServices = ['generic_access', 'generic_attribute', 'device_information', 'battery_service']
-
-function normalizeUuid(uuid) {
-  if (!uuid) return 'Unknown UUID'
-  if (uuid.startsWith('0000') && uuid.endsWith('-0000-1000-8000-00805f9b34fb')) {
-    return uuid.slice(4, 8)
-  }
-  return uuid
-}
-
-function formatProperties(props) {
-  return Object.entries(props)
-    .filter(([, isSupported]) => isSupported)
-    .map(([key]) => key.replace(/[A-Z]/g, (letter) => ` ${letter.toLowerCase()}`))
-}
-
-function ServiceCard({ service }) {
-  return (
-    <div className="panel">
-      <div className="panel__header">
-        <div>
-          <p className="eyebrow">Service</p>
-          <h3>{service.name || 'Unnamed Service'}</h3>
-        </div>
-        <code className="mono">{normalizeUuid(service.uuid)}</code>
-      </div>
-      <div className="stack stack--sm">
-        {service.characteristics.length === 0 ? (
-          <p className="muted">No characteristics reported.</p>
-        ) : (
-          service.characteristics.map((char) => (
-            <div key={char.uuid} className="characteristic">
-              <div className="characteristic__header">
-                <div>
-                  <p className="eyebrow">Characteristic</p>
-                  <p className="mono">{normalizeUuid(char.uuid)}</p>
-                </div>
-                {char.properties.length > 0 && (
-                  <div className="pill" title="Supported operations">
-                    {char.properties.join(' • ')}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  )
-}
+import ServiceCard from './components/ServiceCard'
+import styles from './styles/Base.module.css'
+import { defaultServices, formatProperties, normalizeUuid } from './utils/bluetooth'
 
 function App() {
   const [supported, setSupported] = useState(false)
@@ -122,41 +73,41 @@ function App() {
   }
 
   return (
-    <div className="page">
-      <header className="hero">
+    <div className={styles.page}>
+      <header className={styles.hero}>
         <div>
-          <p className="eyebrow">BLE dashboard</p>
+          <p className={styles.eyebrow}>BLE dashboard</p>
           <h1>Scan for a Bluetooth device</h1>
-          <p className="muted">
+          <p className={styles.muted}>
             Start a scan to pick a nearby device, connect, and inspect its available services and
             characteristics.
           </p>
-          <div className="actions">
-            <button type="button" onClick={scanForDevice} disabled={isScanning}>
+          <div className={styles.actions}>
+            <button type="button" className={styles.button} onClick={scanForDevice} disabled={isScanning}>
               {isScanning ? 'Scanning…' : 'Start scan'}
             </button>
-            {!supported && <span className="pill pill--warning">Web Bluetooth unavailable</span>}
+            {!supported && <span className={`${styles.pill} ${styles.pillWarning}`}>Web Bluetooth unavailable</span>}
           </div>
-          {error && <p className="error">{error}</p>}
+          {error && <p className={styles.error}>{error}</p>}
         </div>
       </header>
 
       {deviceInfo && (
-        <section className="panel">
-          <div className="panel__header">
+        <section className={styles.panel}>
+          <div className={styles.panelHeader}>
             <div>
-              <p className="eyebrow">Connected device</p>
+              <p className={styles.eyebrow}>Connected device</p>
               <h2>{deviceInfo.name}</h2>
-              <p className="muted mono">{deviceInfo.id}</p>
+              <p className={`${styles.muted} ${styles.mono}`}>{deviceInfo.id}</p>
             </div>
-            <div className="pill">{services.length} services</div>
+            <div className={styles.pill}>{services.length} services</div>
           </div>
         </section>
       )}
 
-      <section className="stack">
+      <section className={styles.stack}>
         {services.length === 0 && !deviceInfo && (
-          <div className="panel muted">Scan to list available services.</div>
+          <div className={`${styles.panel} ${styles.muted}`}>Scan to list available services.</div>
         )}
 
         {services.map((service) => (
