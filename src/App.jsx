@@ -19,7 +19,12 @@ function App() {
     []
   )
 
-  const handleDisconnect = () => {
+  const handleDisconnect = (event) => {
+    const device = event?.target
+    console.log('Device disconnected from GATT server', {
+      id: device?.id,
+      name: device?.name,
+    })
     setError('Device disconnected. Scan again to reconnect.')
   }
 
@@ -35,20 +40,30 @@ function App() {
 
     try {
       setIsScanning(true)
+      console.log('Starting device scan: calling navigator.bluetooth.requestDevice')
       const device = await navigator.bluetooth.requestDevice({
         acceptAllDevices: true,
         optionalServices: allowedServices,
       })
 
+      console.log('Device selected', { id: device.id, name: device.name })
       setDeviceInfo({ name: device.name || 'Unknown device', id: device.id })
       device.addEventListener('gattserverdisconnected', handleDisconnect)
 
+      console.log('Connecting to GATT server…')
       const server = await device.gatt.connect()
+      console.log('Connected to GATT server')
+
+      console.log('Fetching primary services…')
       const primaryServices = await server.getPrimaryServices()
 
       const detailedServices = await Promise.all(
         primaryServices.map(async (service) => {
           const characteristics = await service.getCharacteristics()
+          console.log('Enumerated characteristics for service', service.uuid, {
+            count: characteristics.length,
+            uuids: characteristics.map((char) => char.uuid),
+          })
           return {
             uuid: service.uuid,
             name: normalizeUuid(service.uuid),
@@ -62,6 +77,7 @@ function App() {
 
       setServices(detailedServices)
     } catch (err) {
+      console.error('Scan failed', { name: err?.name, message: err?.message })
       if (err?.name === 'NotFoundError') {
         setError('No device selected. Try again to scan for nearby devices.')
       } else {
