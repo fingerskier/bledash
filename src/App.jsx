@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
+import ConnectedDevicePanel from './components/ConnectedDevicePanel'
+import HeroSection from './components/HeroSection'
+import OptionalServicesPanel from './components/OptionalServicesPanel'
 import ServiceCard from './components/ServiceCard'
 import styles from './styles/Base.module.css'
 import {
@@ -106,71 +109,20 @@ function App() {
 
   return (
     <div className={styles.page}>
-      <header className={styles.hero}>
-        <div>
-          <p className={styles.eyebrow}>BLE dashboard</p>
-          <h1>Scan for a Bluetooth device</h1>
-          <p className={styles.muted}>
-            Start a scan to pick a nearby device, connect, and inspect its available services and
-            characteristics.
-          </p>
-          <div className={styles.actions}>
-            <button type="button" className={styles.button} onClick={scanForDevice} disabled={isScanning}>
-              {isScanning ? 'Scanning…' : 'Start scan'}
-            </button>
-            {!supported && <span className={`${styles.pill} ${styles.pillWarning}`}>Web Bluetooth unavailable</span>}
-          </div>
-          <div className={`${styles.panel} ${styles.inlinePanel}`}>
-            <div className={styles.stack}>
-              <div className={styles.panelHeader}>
-                <div>
-                  <p className={styles.eyebrow}>Optional services</p>
-                  <h3>Include custom service UUIDs</h3>
-                  <p className={styles.muted}>
-                    Default Bluetooth services are prefilled. Add UUIDs or service names to include custom
-                    services when requesting a device.
-                  </p>
-                </div>
-              </div>
-              <label className={styles.label} htmlFor="services-input">
-                Additional services (comma or newline separated)
-              </label>
-              <textarea
-                id="services-input"
-                className={styles.textarea}
-                value={customServicesInput}
-                onChange={(event) => setCustomServicesInput(event.target.value)}
-                placeholder="custom_service, 12345678-1234-1234-1234-1234567890ab"
-                rows={3}
-              />
-              <p className={`${styles.muted} ${styles.helpText}`}>
-                We will request these services along with defaults to ensure custom characteristics are returned.
-              </p>
-              <div className={styles.pillRow}>
-                {allowedServices.map((service) => (
-                  <span key={service} className={`${styles.pill} ${styles.pillNeutral}`}>
-                    {service}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-          {error && <p className={styles.error}>{error}</p>}
-        </div>
-      </header>
+      <HeroSection
+        supported={supported}
+        isScanning={isScanning}
+        onScan={scanForDevice}
+        error={error}
+      >
+        <OptionalServicesPanel
+          allowedServices={allowedServices}
+          customServicesInput={customServicesInput}
+          onCustomServicesChange={setCustomServicesInput}
+        />
+      </HeroSection>
 
-      {deviceInfo && (
-        <section className={styles.panel}>
-          <div className={styles.panelHeader}>
-            <div>
-              <p className={styles.eyebrow}>Connected device</p>
-              <h2>{deviceInfo.name}</h2>
-              <p className={`${styles.muted} ${styles.mono}`}>{deviceInfo.id}</p>
-            </div>
-            <div className={styles.pill}>{services.length} services</div>
-          </div>
-        </section>
-      )}
+      <ConnectedDevicePanel deviceInfo={deviceInfo} servicesCount={services.length} />
 
       <section className={styles.stack}>
         {services.length === 0 && !deviceInfo && (
