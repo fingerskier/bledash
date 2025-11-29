@@ -20,7 +20,12 @@ function ServiceCard({ service }) {
               <div className={styles.characteristicHeader}>
                 <div>
                   <p className={styles.eyebrow}>Characteristic</p>
-                  <p className={styles.mono}>{normalizeUuid(char.uuid)}</p>
+                  <p className={styles.mono}>{char.displayUuid}</p>
+                  {char.presentation && (
+                    <p className={`${styles.muted} ${styles.helpText}`}>
+                      {char.presentation}
+                    </p>
+                  )}
                 </div>
                 {char.properties.length > 0 && (
                   <div className={styles.pill} title="Supported operations">
@@ -28,6 +33,20 @@ function ServiceCard({ service }) {
                   </div>
                 )}
               </div>
+              {char.descriptors.length > 0 && (
+                <div className={`${styles.muted} ${styles.helpText}`}>
+                  <span className={styles.eyebrow}>Descriptors</span>
+                  <div className={styles.stackSm}>
+                    {char.descriptors.map((descriptor) => (
+                      <div key={descriptor.uuid}>
+                        <span className={styles.mono}>{descriptor.label}</span>
+                        {descriptor.value && ` — ${descriptor.value}`}
+                        {descriptor.presentation && ` — ${descriptor.presentation}`}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ))
         )}

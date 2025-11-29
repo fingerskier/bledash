@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import ServiceCard from './components/ServiceCard'
 import styles from './styles/Base.module.css'
-import { defaultServices, formatProperties, normalizeUuid } from './utils/bluetooth'
+import {
+  defaultServices,
+  formatUuidWithDescriptor,
+  inspectCharacteristic,
+} from './utils/bluetooth'
 
 function App() {
   const [supported, setSupported] = useState(false)
@@ -76,13 +80,13 @@ function App() {
             count: characteristics.length,
             uuids: characteristics.map((char) => char.uuid),
           })
+          const characteristicDetails = await Promise.all(
+            characteristics.map((char) => inspectCharacteristic(char))
+          )
           return {
             uuid: service.uuid,
-            name: normalizeUuid(service.uuid),
-            characteristics: characteristics.map((char) => ({
-              uuid: char.uuid,
-              properties: formatProperties(char.properties),
-            })),
+            name: formatUuidWithDescriptor(service.uuid, 'service'),
+            characteristics: characteristicDetails,
           }
         })
       )
