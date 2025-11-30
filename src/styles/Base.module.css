@@ -176,6 +176,24 @@
   gap: 8px;
 }
 
+.input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 15px;
+  background: #f8fafc;
+}
+
+.valueBox {
+  display: inline-block;
+  padding: 8px 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  word-break: break-all;
+}
+
 .helpText {
   margin-top: -6px;
   font-size: 13px;

@@ -64,7 +64,7 @@ export function formatUuidWithDescriptor(uuid, type) {
   return describeKnownUuid(shortUuid, type)
 }
 
-export function formatProperties(props) {
+export function formatProperties(props = {}) {
   return Object.entries(props)
     .filter(([, isSupported]) => isSupported)
     .map(([key]) => key.replace(/[A-Z]/g, (letter) => ` ${letter.toLowerCase()}`))
@@ -103,7 +103,19 @@ function parsePresentationFormat(descriptorValue) {
   const unit = descriptorValue.getUint16(2, true)
   const description = descriptorValue.getUint16(6, true)
 
-  return `Format: ${PRESENTATION_FORMATS[format] || `0x${format.toString(16)}`}, exponent: ${exponent}, unit: 0x${unit.toString(16)}, description: 0x${description.toString(16)}`
+  const formatLabel = PRESENTATION_FORMATS[format] || `0x${format.toString(16)}`
+
+  return `Format: ${formatLabel}, exponent: ${exponent}, unit: 0x${unit.toString(16)}, description: 0x${description.toString(16)}`
+}
+
+function deriveCapabilities(characteristic) {
+  const properties = characteristic?.properties || {}
+
+  return {
+    supportsRead: Boolean(properties.read),
+    supportsWrite: Boolean(properties.write || properties.writeWithoutResponse),
+    supportsNotify: Boolean(properties.notify || properties.indicate),
+  }
 }
 
 async function describeDescriptor(descriptor) {
@@ -133,12 +145,15 @@ async function describeDescriptor(descriptor) {
 }
 
 export async function inspectCharacteristic(characteristic) {
+  const capabilities = deriveCapabilities(characteristic)
   const base = {
     uuid: characteristic.uuid,
     displayUuid: formatUuidWithDescriptor(characteristic.uuid, 'characteristic'),
     properties: formatProperties(characteristic.properties),
     descriptors: [],
     presentation: '',
+    bluetoothCharacteristic: characteristic,
+    ...capabilities,
   }
 
   if (typeof characteristic.getDescriptors !== 'function') {
